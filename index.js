@@ -1,7 +1,91 @@
 let form = document.getElementById("transaction-form")
-form.onsubmit = (e) => {
-    console.log(e.target["transaction-type"].value)
-    console.log(e.target.amount.value)
+let balanceAmount = document.getElementById("account-balance")
+let transactionLog = document.getElementById("transaction-log")
 
-    e.preventDefault()
+let balance = 0.00
+let transactionNumber = 0
+let transactionArr = []
+
+form.onsubmit = (e) => {
+
+    let type;
+
+    if (e.target["transaction-type"].value === "1") type = "Deposit";
+    else type = "Withdraw";
+
+    let transaction = {
+        type: type ,  
+        amount: Number(e.target.amount.value)
+    }
+    // console.log(transaction)
+    handleTransaction(transaction);
+    renderBalance();
+    renderTransactionTable();
+
+    e.preventDefault();
+}
+
+function handleTransaction(transaction) {
+    transactionNumber += 1
+
+    let currentTransaction = {
+        tID: transactionNumber,
+        amount: transaction.amount,
+        type: transaction.type,
+        preBalance: balance
+
+    }
+    
+    if (transaction.type === "Deposit") {
+        balance += transaction.amount
+    } else {
+        balance -= transaction.amount
+    }
+
+
+    currentTransaction.postBalance = balance
+    transactionArr.push(currentTransaction)
+    console.log(balance)
+    console.log(transactionArr)
+    
+}
+
+function renderBalance () {
+    balanceAmount.innerText = `$ ${balance}`
+    balanceAmount.style.color = balance >= 0 ? `#9AB278` : `#FE4C58`
+
+}
+
+function renderTransactionTable () {
+    transactionLog.innerHTML = ""
+
+    for (let i = transactionArr.length -1; i >= 0; i --) {
+        let row = createTableRow(transactionArr[i])
+        transactionLog.appendChild(row)
+    }
+}
+
+
+function createTableRow(entry) {
+    let tableRow = document.createElement("tr")
+        let tID = document.createElement("th")
+        let tType = document.createElement("td")
+        let tAmount = document.createElement("td")
+        let preBalance = document.createElement("td")
+        let postBalance = document.createElement("td")
+
+        tID.innerText = entry.tID
+        tType.innerText = entry.type
+        tAmount.innerText = entry.amount
+        preBalance.innerText = entry.preBalance
+        postBalance.innerText = entry.postBalance
+
+        tableRow.appendChild(tID)
+        tableRow.appendChild(tType)
+        tableRow.appendChild(tAmount)
+        tableRow.appendChild(preBalance)
+        tableRow.appendChild(postBalance)
+
+       return tableRow
+
 }
